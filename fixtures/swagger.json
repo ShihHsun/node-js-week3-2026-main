@@ -1,0 +1,237 @@
+{
+  "openapi": "3.0.0",
+  "info": {
+    "title": "健身房會員管理 API",
+    "version": "1.0.0",
+    "description": "Week 3 作業：Express + CRUD + 通用圖片上傳\n\n這份文件由老師預先寫好放在 `fixtures/swagger.json`，學生用 `swagger-ui-express` 掛載到 `/docs` 即可。\n\n打開 http://localhost:3000/docs 、每個 endpoint 下面有 **Try it out** 按鈕直接試打。"
+  },
+  "servers": [
+    { "url": "http://localhost:3000", "description": "本機開發" }
+  ],
+  "tags": [
+    { "name": "Members", "description": "會員 CRUD" },
+    { "name": "Upload", "description": "通用圖片上傳" }
+  ],
+  "components": {
+    "schemas": {
+      "Member": {
+        "type": "object",
+        "required": ["id", "name", "level"],
+        "properties": {
+          "id": { "type": "integer", "example": 1 },
+          "name": { "type": "string", "example": "小華" },
+          "level": { "type": "string", "enum": ["VIP", "normal"], "example": "VIP" }
+        }
+      },
+      "MemberInput": {
+        "type": "object",
+        "required": ["name", "level"],
+        "properties": {
+          "name": { "type": "string", "example": "小華" },
+          "level": { "type": "string", "enum": ["VIP", "normal"], "example": "VIP" }
+        }
+      },
+      "Error": {
+        "type": "object",
+        "properties": {
+          "error": { "type": "string", "example": "會員不存在" }
+        }
+      },
+      "UploadResult": {
+        "type": "object",
+        "properties": {
+          "filename": { "type": "string", "example": "cat.jpg" },
+          "sizeKB": { "type": "integer", "example": 245 },
+          "savedPath": { "type": "string", "example": "/tmp/uploads/abc123.jpg" }
+        }
+      }
+    }
+  },
+  "paths": {
+    "/members": {
+      "get": {
+        "summary": "取得會員列表",
+        "tags": ["Members"],
+        "parameters": [
+          {
+            "name": "level",
+            "in": "query",
+            "required": false,
+            "description": "可選篩選條件，`VIP` 或 `normal`",
+            "schema": { "type": "string", "enum": ["VIP", "normal"] }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "成功",
+            "content": {
+              "application/json": {
+                "schema": { "type": "array", "items": { "$ref": "#/components/schemas/Member" } }
+              }
+            }
+          }
+        }
+      },
+      "post": {
+        "summary": "新增會員",
+        "tags": ["Members"],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": { "$ref": "#/components/schemas/MemberInput" }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "新增成功",
+            "content": {
+              "application/json": {
+                "schema": { "$ref": "#/components/schemas/Member" }
+              }
+            }
+          },
+          "400": {
+            "description": "缺欄位（name 或 level 沒帶）",
+            "content": {
+              "application/json": {
+                "schema": { "$ref": "#/components/schemas/Error" }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/members/{id}": {
+      "get": {
+        "summary": "取得單一會員",
+        "tags": ["Members"],
+        "parameters": [
+          { "name": "id", "in": "path", "required": true, "schema": { "type": "integer" } }
+        ],
+        "responses": {
+          "200": {
+            "description": "成功",
+            "content": {
+              "application/json": {
+                "schema": { "$ref": "#/components/schemas/Member" }
+              }
+            }
+          },
+          "404": {
+            "description": "會員不存在",
+            "content": {
+              "application/json": {
+                "schema": { "$ref": "#/components/schemas/Error" }
+              }
+            }
+          }
+        }
+      },
+      "put": {
+        "summary": "更新會員資料（merge）",
+        "tags": ["Members"],
+        "parameters": [
+          { "name": "id", "in": "path", "required": true, "schema": { "type": "integer" } }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "name": { "type": "string" },
+                  "level": { "type": "string", "enum": ["VIP", "normal"] }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "更新成功",
+            "content": {
+              "application/json": {
+                "schema": { "$ref": "#/components/schemas/Member" }
+              }
+            }
+          },
+          "404": {
+            "description": "會員不存在",
+            "content": {
+              "application/json": {
+                "schema": { "$ref": "#/components/schemas/Error" }
+              }
+            }
+          }
+        }
+      },
+      "delete": {
+        "summary": "刪除會員",
+        "tags": ["Members"],
+        "parameters": [
+          { "name": "id", "in": "path", "required": true, "schema": { "type": "integer" } }
+        ],
+        "responses": {
+          "204": { "description": "刪除成功（無 body）" },
+          "404": {
+            "description": "會員不存在",
+            "content": {
+              "application/json": {
+                "schema": { "$ref": "#/components/schemas/Error" }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/uploadImage": {
+      "post": {
+        "summary": "通用圖片上傳",
+        "tags": ["Upload"],
+        "description": "用 multipart/form-data 傳檔案，field 名稱 `image`。成功回傳 savedPath，想用這張圖的人自己決定用途（例如前端再打 PUT /members/:id 把 savedPath 存進會員資料）。",
+        "requestBody": {
+          "required": true,
+          "content": {
+            "multipart/form-data": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "image": { "type": "string", "format": "binary" }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "成功",
+            "content": {
+              "application/json": {
+                "schema": { "$ref": "#/components/schemas/UploadResult" }
+              }
+            }
+          },
+          "400": {
+            "description": "沒帶檔案",
+            "content": {
+              "application/json": {
+                "schema": { "$ref": "#/components/schemas/Error" }
+              }
+            }
+          },
+          "500": {
+            "description": "檔案超過 maxFileSize 或上傳失敗",
+            "content": {
+              "application/json": {
+                "schema": { "$ref": "#/components/schemas/Error" }
+              }
+            }
+          }
+        }
+      }
+    }
+  }
+}

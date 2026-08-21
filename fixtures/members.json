@@ -1,0 +1,6 @@
+[
+  { "id": 1, "name": "小華", "level": "VIP" },
+  { "id": 2, "name": "小美", "level": "normal" },
+  { "id": 3, "name": "阿強", "level": "VIP" },
+  { "id": 4, "name": "小明", "level": "normal" }
+]
