@@ -40,7 +40,7 @@ function filterByQuery(list, query) {
 
 function validateBody(body) { 
   if(!body||!body.name||!body.level){
-    return { vaild : false, error : '缺 Name 或 level'};
+    return { valid : false, error : '缺 Name 或 level'};
   }
   return { valid : true};
 
@@ -60,17 +60,29 @@ const router = express.Router();
 // - 輸入：req.query.level 可帶 'VIP' | 'normal'（選填）
 // - 輸出：200 + [{ id, name, level }, ...]
 // - 提示：filterByQuery(members, req.query)
-/* 作答區
-router.METHOD('PATH', (req, res) => { ... });
-*/
+
+router.get('/', (req, res) => {
+  const filteredMembers = filterByQuery(members, req.query);
+  return res.status(200).json(filteredMembers);
+});
+
 
 // GET /:id
 // - 輸入：req.params.id（string，需使用 Number() 轉換）
 // - 輸出：200 + { id, name, level }，或 404 + { error: '會員不存在' }（找不到時）
 // - 提示：members.find，找不到時結果是 undefined
-/* 作答區
-router.METHOD('PATH', (req, res) => { ... });
-*/
+
+router.get('/:id', (req, res) => {
+  const {id} = req.params;
+  // req 抓取下來的任何東西會預設為字串所以要用 Number（）轉換
+  // members是原本的資料庫中尋找member對照id和要求進入的id 比對
+  const findMember = members.find((member)=> member.id === Number(id))
+  if(!findMember){
+    return res.status(404).json({error: '會員不存在'});
+  }
+  return res.status(200).json(findMember);
+});
+
 
 // ───────────────────────────────────────────────────────────
 // TODO 任務三：POST /
