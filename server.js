@@ -6,7 +6,7 @@ require('dotenv').config();
 const fs = require('node:fs');
 const app = require('./app');
 
-const PORT = Number(process.env.PORT) || 3000;
+const PORT = Number(process.env.PORT) || 3010;
 const uploadDir = process.env.UPLOAD_DIR || '/tmp/uploads';
 
 if (!fs.existsSync(uploadDir)) {

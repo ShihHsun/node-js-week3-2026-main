@@ -9,32 +9,43 @@ const initialMembers = require('../fixtures/members.json');
 // ───────────────────────────────────────────────────────────
 
 // 1. 複製 initialMembers，不直接改外部陣列
-/* 作答區
-const members = ...;
-*/
+
+const members = [...initialMembers];
+
 
 // 2. 下一個新增會員要使用的 id
-/* 作答區
-let nextId = ...;
-*/
+
+let nextId = initialMembers.length +1;
+
 
 // 3. 兩個內部 helper 函式
 
 // 函式一：filterByQuery(list, query)：
 // - 依據 query.level 篩選，沒帶就回全部
 // - 任務二的 GET / 會使用到這個函式
-/* 作答區
-function filterByQuery(list, query) { ... }
-*/
+
+function filterByQuery(list, query) { 
+  // 1. 檢查 query.level 是否存在，若不存在就回傳 list
+  if(!query.level) return list;
+  // 2. 若 query.level 存在，回傳符合條件的陣列
+  return list.filterByQuery((members)=> members.level === query.level);
+}
+
 
 // 函式二：validateBody(body)
 // - 驗證 body 有沒有 name、level 欄位，要擋 null / undefined / {}
 // - 驗證通過 → { valid: true }
 // - 驗證失敗 → { valid: false, error: '缺 name 或 level' }
 // - 任務三的 POST / 會使用到這個函式
-/* 作答區
-function validateBody(body) { ... }
-*/
+
+function validateBody(body) { 
+  if(!body||!body.name||!body.level){
+    return { vaild : false, error : '缺 Name 或 level'};
+  }
+  return { valid : true};
+
+}
+
 
 const router = express.Router();
 // 此 router 掛在 app.js 的 '/members'，以下路由皆帶此前綴。舉例來說：
