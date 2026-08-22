@@ -152,7 +152,7 @@ node-js-week3-2026/
 
 **方式二：Swagger UI**
 
-開啟瀏覽器前往 `http://localhost:3000/docs`，可在各個 API 項目點擊 **Try it out** 直接在頁面測試。
+開啟瀏覽器前往 `http://localhost:3010/docs`，可在各個 API 項目點擊 **Try it out** 直接在頁面測試。
 
 ### 【測試】
 

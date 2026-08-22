@@ -28,7 +28,7 @@ function filterByQuery(list, query) {
   // 1. 檢查 query.level 是否存在，若不存在就回傳 list
   if(!query.level) return list;
   // 2. 若 query.level 存在，回傳符合條件的陣列
-  return list.filterByQuery((members)=> members.level === query.level);
+  return list.filter((members)=> members.level === query.level);
 }
 
 
@@ -134,6 +134,13 @@ router.put('/:id', (req, res) => {
   if(memberIndex === -1){
     return res.status(404).json({error: '會員不存在'});
   }
+
+  // 先帶入原本資料，再覆蓋修改的部分
+  members[memberIndex] = {
+    ...members[memberIndex],
+    ...req.body,
+  };
+
   // 前端與資料庫的id都符合時候，將對應的索引值的會員資料與前端傳入的body資料做合併，並覆蓋原本的資料
   return res.status(200).json(members[memberIndex]);
 });
@@ -150,6 +157,9 @@ router.delete('/:id', (req, res) => {
   if(memberIndex === -1){
     return res.status(404).json({error: '會員不存在'});
   }
+
+
+
   // 前端與資料庫的id都符合時候，將對應的索引值的會員資料從陣列中移除
   // splice(索引值, 移除數量)
   members.splice(memberIndex,1);
